@@ -35,6 +35,11 @@ namespace BookProject
             });
 
             services.AddScoped<IBookProjectRepository, EFBookProjectRepository>(); // each http request gets its own repository?
+
+            services.AddRazorPages();
+
+            services.AddDistributedMemoryCache(); // allows us to use sessions
+            services.AddSession();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,11 +52,27 @@ namespace BookProject
 
             app.UseStaticFiles(); // tells ASP to use the files in the wwwroot file
 
+            app.UseSession(); // lets us use sessions
+
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllerRoute("typepage",
+                     "{category}/{pageNum}",
+                     new { Controller = "Home", action = "Index" }
+                     );
+                endpoints.MapControllerRoute( // this part fixes the url to be cleaner 
+                    name: "Paging",
+                    pattern: "{pageNum}", // this will be the last part of the url /{pageNum}
+                    defaults: new { Controller = "Home", action = "Index", pageNum = 1}
+                    );
+                endpoints.MapControllerRoute("type",
+                    "{category}",
+                    new { Controller = "Home", action = "Index", pageNum = 1 });
                 endpoints.MapDefaultControllerRoute(); // set up the controller route
+
+                endpoints.MapRazorPages();
             });
         }
     }
