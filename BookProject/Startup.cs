@@ -35,11 +35,17 @@ namespace BookProject
             });
 
             services.AddScoped<IBookProjectRepository, EFBookProjectRepository>(); // each http request gets its own repository?
+            services.AddScoped<IPurchaseRepository, EFPurchaseRepository>();
 
             services.AddRazorPages();
 
             services.AddDistributedMemoryCache(); // allows us to use sessions
             services.AddSession();
+
+            services.AddScoped<Cart>(x => SessionCart.GetCart(x)); // when we see this cart, go get the instance of the cart already set up or make a new cart
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
